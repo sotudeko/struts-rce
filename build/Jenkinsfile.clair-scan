@@ -5,12 +5,18 @@ pipeline {
 
 	environment {
 		ARTEFACT_NAME = "${WORKSPACE}/target/${APP_NAME}-${BUILD_VERSION}.war"
+		OUTPUT_DIR = "${WORKSPACE}/output"
 		REGISTRY = 'sola.local:9001'
 		IMAGE_NAME = "${APP_NAME}"
 		JENKINS_CREDS = 'docker-rgy-id'
 	}
 
 	stages {
+		stage('Pre-build') {
+			steps {
+				sh 'mkdir ${OUTPUT_DIR}'
+			}
+		}
 
 		stage('Build') {
 			steps {
@@ -20,15 +26,21 @@ pipeline {
       	success {
       		echo 'Now archiving...'
       		archiveArtifacts artifacts: "**/target/*.war"
-      		sh '/bin/cp ${ARTEFACT_NAME} WebGoat.war'
+      		sh '/bin/cp ${ARTEFACT_NAME} ${OUTPUT_DIR}/WebGoat.war'
       	}
       }
 		}
 
 		stage('Build docker image') {
+			steps {
+				sh 'echo Hello build docker image'
+			}
 		}
 
 		stage('Scan') {
+			steps {
+				sh 'echo Hello scan'
+			}
 		}
 
 	}
