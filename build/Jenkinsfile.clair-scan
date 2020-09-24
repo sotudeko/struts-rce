@@ -1,0 +1,36 @@
+
+pipeline {
+
+	agent any
+
+	environment {
+		ARTEFACT_NAME = "${WORKSPACE}/target/${APP_NAME}-${BUILD_VERSION}.war"
+		REGISTRY = 'sola.local:9001'
+		IMAGE_NAME = "${APP_NAME}"
+		JENKINS_CREDS = 'docker-rgy-id'
+	}
+
+	stages {
+
+		stage('Build') {
+			steps {
+      	sh 'mvn -B -Dproject.version=$BUILD_VERSION -Dmaven.test.failure.ignore clean package'
+      }
+      post {
+      	success {
+      		echo 'Now archiving...'
+      		archiveArtifacts artifacts: "**/target/*.war"
+      		sh '/bin/cp ${ARTEFACT_NAME} WebGoat.war'
+      	}
+      }
+		}
+
+		stage('Build docker image') {
+		}
+
+		stage('Scan') {
+		}
+
+	}
+}
+
